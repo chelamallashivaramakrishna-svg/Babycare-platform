@@ -1,0 +1,27 @@
+MongoDB Connected
+
+=== DOCTORS ===
+Name: Harsha | ID: 698a340ea9368aa8f0fe2d4d | Email: bunnybollavatri1@gmail.com
+Name: rama | ID: 698a39a92351e0aeee05509f | Email: shiva@gmail.com
+
+=== APPOINTMENTS ===
+Appt ID: 698a35e905602cff1b30ef9f
+   - Assigned Doctor: Harsha (698a340ea9368aa8f0fe2d4d)
+   - Parent: Shiva
+   - Status: pending
+Appt ID: 698a39e32351e0aeee0550b3
+   - Assigned Doctor: rama (698a39a92351e0aeee05509f)
+   - Parent: Shiva
+   - Status: pending
+Appt ID: 698a3bc4d107bb5e1e25e6e3
+   - Assigned Doctor: rama (698a39a92351e0aeee05509f)
+   - Parent: Shiva
+   - Status: pending
+Appt ID: 698a3cb8d107bb5e1e25e738
+   - Assigned Doctor: rama (698a39a92351e0aeee05509f)
+   - Parent: Shiva
+   - Status: pending
+Appt ID: 698a3e87d107bb5e1e25e775
+   - Assigned Doctor: rama (698a39a92351e0aeee05509f)
+   - Parent: Shiva
+   - Status: pending

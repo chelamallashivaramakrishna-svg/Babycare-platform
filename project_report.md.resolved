@@ -1,0 +1,321 @@
+# Baby Care Management System Project Report
+
+## 1. INTRODUCTION
+
+### 1.1 PURPOSE AND OBJECTIVES
+The **purpose** of the Baby Care Management System is to provide a comprehensive, secure, and user-friendly platform that assists parents, doctors, and children in managing a child's complete life record from birth through childhood. Modern parenting often involves juggling numerous apps for scheduling, health tracking, and media limitation. This centralized approach simplifies these tasks into one secure ecosystem.
+
+**Objectives:**
+*   To digitalize and centralize a child's health records, including vaccinations, growth metrics (height, weight, head circumference), allergies, and general medical history.
+*   To provide an intuitive appointment scheduling engine linking parents directly with their registered pediatricians.
+*   To implement a secure, regulated "Media Center" specifically for children, allowing parents to control content and strictly restrict daily screen time automatically.
+*   To enable multi-user role-based access for Parents, Doctors, and Children under a unified Family grouping system utilizing secure invite codes.
+
+### 1.2 EXISTING AND PROPOSED SYSTEM
+**Existing System:**
+Currently, parents often rely on a disconnected combination of physical health booklets, scattered digital notes, disparate media streaming platforms with varying parental controls, and phone calls for booking doctor appointments. There is no single unified view of a child's daily schedule, medical history, and digital consumption. Doctors similarly lack instantaneous access to a child's full medical timeline outside of their own clinic software.
+
+**Proposed System:**
+The proposed Baby Care App is a centralized, cloud-based web application that integrates health tracking, appointment scheduling, and media consumption into one platform. Key features include:
+*   **Unified Family Grouping:** Secure invite codes link parent accounts and allow the creation of multiple child profiles.
+*   **Doctor Portal Enhancements:** Allows pediatricians to instantly access a child's full history (past visits, current medications, pending vaccinations) prior to or during appointments via a dynamic modal.
+*   **Automated Screen Time Management:** A child-specific login flow using a 4-digit PIN strictly limits media viewing. Once a child's daily allotted screen time expires, the media center locks them out automatically.
+
+### 1.3 SCOPE OF THE PROJECT
+The project encompasses the design, development, and deployment of a full-stack web application using the MERN stack (MongoDB, Express.js, React, Node.js). It features User Authentication, Role-Based Access Control (RBAC), Family & Child Profile Management, an Appointment Booking Engine, a Health/Vaccination Tracker, and a dynamically restricted Sandbox Media Center. The application targets families seeking a singular hub for child management, as well as pediatric clinics looking to digitize their patient interaction and history tracking.
+
+---
+
+## 2. LITERATURE SURVEY
+In recent years, the digitization of Personal Health Records (PHR) has seen significant adoption globally. Research indicates that parent-controlled health records dramatically improve vaccination adherence, ensure accurate growth tracking, and facilitate better emergency medical responses. Concurrently, pediatric psychology studies emphasize the critical necessity of regulating early childhood screen time to prevent developmental delays and digital addiction. Traditional Parental Control applications often operate at the device level, resulting in friction and easy circumvention. Integrating PHR systems with a self-contained, controlled digital media environment represents a novel approach to holistic childcare, bridging the gap between clinical necessities and modern digital parenting realities.
+
+---
+
+## 3. SYSTEM ANALYSIS
+
+### 3.1 HARDWARE AND SOFTWARE REQUIREMENTS
+
+**Hardware Requirements:**
+*   **Processor:** Intel Core i3 / AMD Ryzen 3 or higher.
+*   **RAM:** 8 GB Minimum (16GB recommended for concurrent use).
+*   **Storage:** 256 GB SSD for local caching.
+*   **Network:** Broadband Internet Connection required for real-time cloud database communication.
+
+**Software Requirements:**
+*   **Operating System:** Cross-platform compatibility (Windows, macOS, Linux).
+*   **Front-end Development:** React.js, Tailwind CSS, Vite bundler.
+*   **Back-end Technology:** Node.js runtime, Express.js web framework.
+*   **Database:** MongoDB Atlas (Cloud NoSQL document store).
+*   **Web Browser:** Google Chrome v90+, Mozilla Firefox v88+, or Safari v14+.
+
+### 3.2 SOFTWARE REQUIREMENTS SPECIFICATION
+
+*   **Functional Requirements:**
+    *   **FR1:** The system must allow Parents and Doctors to register and authenticate using email and bcrypt-hashed passwords.
+    *   **FR2:** Parents must be able to create a Family group and generate invite codes to add secondary parents or children.
+    *   **FR3:** Parents must be able to book, view, and track the status (Pending/Confirmed/Cancelled) of appointments with registered Doctors.
+    *   **FR4:** Doctors must be able to view their specific patient history, update appointment statuses, and review pending vaccinations.
+    *   **FR5:** The system must enforce a strict Child-Login using an Invite Code and a 4-digit PIN.
+    *   **FR6:** The system must track media consumption minute-by-minute and lock out the child when the daily threshold is met.
+
+*   **Non-Functional Requirements:**
+    *   **Security:** API routes must be protected via JSON Web Tokens (JWT). Sensitive data such as medical records must be isolated by Family ID and Doctor ID.
+    *   **Performance:** UI interactions should reflect data changes instantly (optimistic rendering) and fetch backend responses within 2000 milliseconds under load.
+    *   **Usability:** The interface must be aesthetically pleasing, fully responsive, and accessible on both desktop browsers and mobile touch screens.
+
+---
+
+## 4. SYSTEM DESIGN
+
+### 4.1 DESCRIPTION
+The system is built upon a generic Model-View-Controller (MVC) architectural pattern implemented via the MERN stack. The backend server exposes a RESTful API, consumed by a React-based Single Page Application (SPA). This decoupling ensures scalability and the potential for future mobile app integration.
+
+### 4.2 ARCHITECTURE
+The project utilizes a distinct Client-Server separation:
+*   **Client (React):** Manages local session state using the React Context API (`AuthContext`, `FamilyContext`) and handles dynamic routing using `react-router-dom`. Views are styled using Tailwind CSS for rapid prototyping and consistent design language.
+*   **Server (Express/Node):** Handles business logic, authentication parsing, request validation, and object modeling.
+*   **Database (MongoDB):** A NoSQL database storing unstructured JSON-like documents encompassing Users, Families, Children, Appointments, and Health Metrics.
+
+### 4.3 UML DIAGRAMS
+
+#### 4.3.1 Use Case Diagram
+The Use Case diagram illustrates the primary actors (Parent, Doctor, Child) and their interaction with the core system functionalities.
+
+```mermaid
+flowchart LR
+    P([Parent])
+    D([Doctor])
+    C([Child])
+    
+    subgraph Baby Care Management System
+        UC1(Register Family & Add Child)
+        UC2(Book Appointment)
+        UC3(View Child Health History)
+        UC4(Update Vaccination Status)
+        UC5(Access Media Center)
+        UC6(Enforce Screen Time Limit)
+    end
+    
+    P --> UC1
+    P --> UC2
+    P --> UC3
+    
+    D --> UC3
+    D --> UC4
+    
+    C --> UC5
+    UC5 --> UC6
+```
+
+#### 4.3.2 Sequence Diagram
+The Sequence Diagram demonstrates the chronological flow of interactions between the Parent, the UI, the Server, and the Database during the Appointment Booking process.
+
+```mermaid
+sequenceDiagram
+    participant Parent
+    participant UI as React Client
+    participant API as Node/Express Server
+    participant DB as MongoDB
+    participant Doctor
+    
+    Parent->>UI: Select Doctor, Child, DateTime, Reason
+    UI->>API: POST /api/appointments (Payload)
+    API->>DB: Save Appointment Document
+    DB-->>API: Success (Mongoose Entity)
+    API-->>UI: 201 Created
+    UI-->>Parent: Display "Appointment Booked" Success Message
+    
+    Doctor->>UI: Navigate to Doctor Dashboard
+    UI->>API: GET /api/appointments/doctor
+    API->>DB: Fetch Appointments by Doctor ID
+    DB-->>API: Results Array
+    API-->>UI: 200 OK
+    UI-->>Doctor: Display Pending Appointments Table
+```
+
+#### 4.3.3 Class Diagram
+The Class diagram breaks down the primary data models, their attributes, and the relational multiplicity between the core entities.
+
+```mermaid
+classDiagram
+    class User {
+        +ObjectId _id
+        +String name
+        +String email
+        +String password
+        +String role
+        +register()
+        +login()
+    }
+    class Child {
+        +ObjectId _id
+        +String name
+        +Date dob
+        +String pin
+        +Number screenTimeLimit
+        +Number screenTimeUsed
+        +updateScreenTime()
+    }
+    class Family {
+        +ObjectId _id
+        +String name
+        +String inviteCode
+        +User[] parents
+        +Child[] children
+        +generateInviteCode()
+    }
+    class Appointment {
+        +ObjectId _id
+        +User doctor
+        +Child child
+        +Date date
+        +String status
+        +updateStatus()
+    }
+    class HealthRecord {
+        +ObjectId childId
+        +Number weight
+        +Number height
+        +Date recordedAt
+    }
+    
+    Family "1" o-- "1..*" User : Contains
+    Family "1" o-- "0..*" Child : Contains
+    Child "1" *-- "0..*" HealthRecord : Logs
+    Child "1" -- "0..*" Appointment : Attends
+```
+
+#### 4.3.4 Activity Diagram
+This logic flow diagram maps the activity sequence when a child attempts to log in and consume media, detailing the conditional logic applied to screen time enforcement.
+
+```mermaid
+flowchart TD
+    A([Start]) --> B{Enter Invite Code & PIN}
+    B -->|Invalid Credentials| D[Show Error Message]
+    D --> B
+    
+    B -->|Valid Credentials| C[Fetch Child Data & Screen Time]
+    
+    C --> E{Time Left > 0?}
+    E -->|No| G[Render 'Time's Up' Lock Screen]
+    G --> J([End Session])
+    
+    E -->|Yes| F[Render Media Center Videos]
+    F --> H[Child Watches Video]
+    H --> I[System Deducts 1 Minute via API]
+    I --> E
+```
+
+#### 4.3.5 Deployment Diagram
+The Deployment diagram illustrates how the software elements are mapped onto the physical and virtual hardware nodes for production environments.
+
+```mermaid
+flowchart TD
+    subgraph Client Node
+        Browser[Web Browser / Mobile View]
+        ReactSPA[React SPA JavaScript Bundle]
+        Browser --> ReactSPA
+    end
+    
+    subgraph Server Node
+        NodeRuntime[Node.js Runtime Engine]
+        ExpressLogic[Express API Logic]
+        NodeRuntime --> ExpressLogic
+    end
+    
+    subgraph Database Node
+        MongoAtlas[(MongoDB Atlas \n Cloud Cluster)]
+    end
+    
+    ReactSPA <-->|HTTPS / RESTful API| NodeRuntime
+    ExpressLogic <-->|Mongoose / TCP/IP| MongoAtlas
+```
+
+---
+
+## 5. METHODOLOGY
+
+An iterative Agile methodology was employed during the lifecycle of this project. Features were prioritized and developed in focused sprints (e.g., Auth Base -> Family & Dashboard Setup -> Doctor Portal Data Integration -> Child/Media Constraint Engine). This approach allowed for continuous testing, immediate user-interface feedback, and rapid refinement of the integration points between the diverse user roles.
+
+### 5.1 TECHNOLOGIES USED
+*   **Frontend Ecosystem:** React (Hooks: useState, useEffect, useContext), Vite build tool, Tailwind CSS for utility-first styling, Axios for HTTP requests, and `react-router-dom` for navigation.
+*   **Backend Ecosystem:** Node.js, Express.js.
+*   **Database & Modeling:** MongoDB, Mongoose (Object Data Modeling library).
+*   **Security & Encryption:** JSON Web Tokens (JWT) for stateless session management, bcryptjs for cryptographic password hashing.
+
+### 5.2 MODULES DESCRIPTION
+*   **Auth Module:** Handles standard registration, traditional login (email/password), and the specialized child login route (Invite Code + PIN validation). Generates and verifies JWTs.
+*   **Family & Child Module:** Manages the instantiation of families, dynamic invite code generation, and tracks specific child metrics (health logs, vaccine progression, screen time usage limits).
+*   **Appointment Module:** A dual-sided engine serving parents (booking and viewing status) and doctors (reviewing schedules, approving constraints, and reviewing child histories).
+*   **Media Module:** Provides YouTube URL references organized by age-appropriateness. It securely bounds the embedded iframe players within a react component that tracks session time.
+
+### 5.3 PROCESS/ALGORITHM
+**Screen Time Tracking Algorithm (Client-Server Synchronized):**
+1. **Initialize:** Upon Child Login, fetch the child's `screenTimeLimit` and currently `screenTimeUsed` values from `GET /api/children/:id`.
+2. **Calculate:** Determine `timeLeft = limit - used`.
+3. **Loop:** Mount a React `setInterval` tied to the lifecycle of the Media component, executing every 60,000ms (1 minute).
+4. **Mutate:** If `timeLeft` > 0, make an asynchronous `PUT` call to the API to increment `screenTimeUsed` by 1. Update the local React state.
+5. **Enforce:** If `timeLeft` <= 0, strictly unmount the media players replacing them with an impenetrable "Time's Up" view component.
+
+---
+
+## 6. IMPLEMENTATION
+
+### 6.1 SAMPLE CODE
+*Middleware Implementation for Role & Token Protection ([authMiddleware.js](file:///c:/Users/srivani/.gemini/antigravity/scratch/server/middleware/authMiddleware.js)):*
+```javascript
+const protect = async (req, res, next) => {
+    let token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = await User.findById(decoded.id).select('-password');
+            
+            // Child fallback logic (Children use separate Mongo Collection)
+            if (!req.user) {
+                const child = await Child.findById(decoded.id);
+                if (child) req.user = { _id: child._id, role: 'child', name: child.name };
+            }
+            
+            if (!req.user) throw new Error('User not found');
+            next();
+        } catch (error) { 
+            res.status(401).json({ message: 'Token failed or expired' }); 
+        }
+    } else {
+        res.status(401).json({ message: 'Not authorized, no token' });
+    }
+};
+```
+
+### 6.2 OUTPUT SCREENS
+*(Note: Visual representation map for implementation)*
+1.  **Parent Dashboard Output:** Displays a customized greeting, the family invite code, a dynamic list of "Today's Activities" hyperlinked to granular schedules, and a "My Appointments" table charting real-time approval statuses.
+2.  **Doctor Portal Output:** A dual-pane interface. Left pane charts pending daily appointments. Right pane lists the patient directory, spawning a "Full History Modal" detailing pending vaccines, age, weight percentiles, and prior appointment logs.
+3.  **Child Media Center Output:** An immersive grid of embedded YouTube videos filtered by age. A persistent overhead banner dynamically counts down the remaining `Time Left`.
+
+### 6.3 TEST CASES
+
+| Test Case ID | Feature | Description | Expected Result | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **TC_01** | **Authentication** | Parent registers a new account using valid email format. | Account created, JWT issued, redirected to Dashboard. | Pass |
+| **TC_02** | **Doctor Portal** | Doctor clicks "View Full History" on a patient row. | Modal opens aggressively fetching health records and vaccine arrays from the database. | Pass |
+| **TC_03** | **Child Login** | Child attempts login with correct Invite Code but invalid PIN. | API returns 401 Unauthorized; UI displays "Invalid PIN" alert. | Pass |
+| **TC_04** | **Screen Time** | Child consumes media resulting in `screenTimeUsed` == `screenTimeLimit`. | React component state toggles; Video renders disappear and are replaced by the "Screen Time's Up!" lock screen. | Pass |
+| **TC_05** | **Routing** | Child attempts to access URL `/dashboard` manually. | ProtectedRoute middleware catches role mismatch and forces redirect back to `/media`. | Pass |
+
+---
+
+## 7. CONCLUSION
+The Baby Care Management System successfully integrates the multifaceted and complex challenges of modern parenting into a cohesive, secure digital platform. By unifying pediatric health tracking, simplifying the doctor-parent scheduling loop, and fully automating digital media constraints, the application provides immense utility to households. Furthermore, the robust MERN stack architecture ensures that the platform is scalable, secure, and highly performant. 
+
+Future enhancements could involve migrating the React client to React Native for native mobile app distribution on Android/iOS, integrating AI-driven pediatric health insights based on historical growth metrics, and implementing automated push-notification arrays (via WebSockets or service workers) for immediate upcoming vaccination reminders.
+
+---
+
+## 8. BIBLIOGRAPHY
+*   **Mongoose API Guidelines:** [https://mongoosejs.com/docs/api.html](https://mongoosejs.com/docs/api.html)
+*   **React Documentation (Hooks Reference):** [https://react.dev/reference/react](https://react.dev/reference/react)
+*   **Express.js Routing and Middleware:** [https://expressjs.com/en/guide/routing.html](https://expressjs.com/en/guide/routing.html)
+*   **JSON Web Tokens Standard (RFC 7519):** [https://jwt.io/introduction](https://jwt.io/introduction)
+*   **Tailwind CSS Utility Classes:** [https://tailwindcss.com/docs](https://tailwindcss.com/docs)
