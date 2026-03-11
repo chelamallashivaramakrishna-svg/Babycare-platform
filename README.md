@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Baby Care App
 
 ## Prerequisites
@@ -40,3 +41,7 @@ This will start the backend server on port 5000 (default) and the frontend devel
 
 -   **MongoDB Connection Error:** Ensure your MongoDB instance is running. If using a cloud database, check your `.env` file in the `server` directory for the correct `MONGO_URI`.
 -   **Port Conflicts:** If port 5000 is in use, modify the `PORT` in your `.env` file or `server/index.js`.
+=======
+# Babycare-platform
+Baby care 
+>>>>>>> 0c14e92d9943c53a1259bd942c95457fb21b7ce5
